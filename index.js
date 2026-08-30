@@ -9,6 +9,7 @@ const commentRoutes = require('./routes/comment');
 const paymentRoutes = require('./routes/payment');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
+const artistRoutes = require('./routes/artist');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,6 +25,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/artist', artistRoutes);
 
 // Base Route
 app.get('/', (req, res) => {
