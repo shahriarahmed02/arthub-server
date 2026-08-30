@@ -8,7 +8,19 @@ const router = express.Router();
 // 1. User Registration Route
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    // Front-end standard layout supports fullName or name
+    const { name, fullName, email, password, role } = req.body;
+    const userName = name || fullName;
+
+    if (!userName || !email || !password) {
+      return res.status(400).json({ message: 'All required fields must be provided' });
+    }
+
+    // Check if JWT_SECRET exists
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ JWT_SECRET is missing from environment variables!');
+      return res.status(500).json({ message: 'Server configuration error: JWT_SECRET missing' });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -21,7 +33,7 @@ router.post('/register', async (req, res) => {
 
     // Create New User
     const newUser = new User({
-      name,
+      name: userName,
       email,
       password: hashedPassword,
       role: role || 'user'
@@ -48,6 +60,7 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Registration Error:', error);
     res.status(500).json({ message: 'Server error during registration', error: error.message });
   }
 });
@@ -56,6 +69,15 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide email and password' });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ JWT_SECRET is missing from environment variables!');
+      return res.status(500).json({ message: 'Server configuration error: JWT_SECRET missing' });
+    }
 
     // Check User
     const user = await User.findOne({ email });
@@ -88,6 +110,7 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login Error:', error);
     res.status(500).json({ message: 'Server error during login', error: error.message });
   }
 });
