@@ -14,7 +14,7 @@ const artistRoutes = require('./routes/artist');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Configured CORS Middleware
+// Configured CORS Middleware with your actual project domains
 const allowedOrigins = [
   'http://localhost:3000',
   'https://arthub-eta.vercel.app',
