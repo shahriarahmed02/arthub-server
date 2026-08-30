@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const artworkRoutes = require('./routes/artwork');
 const commentRoutes = require('./routes/comment');
 const paymentRoutes = require('./routes/payment');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/artworks', artworkRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Base Route
 app.get('/', (req, res) => {
