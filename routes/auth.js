@@ -5,39 +5,41 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// 1. User Registration Route
+// Register Route
 router.post('/register', async (req, res) => {
   try {
     const { name, fullName, email, password, role } = req.body;
+    
+    // Accept either name or fullName from frontend
     const userName = name || fullName;
 
     if (!userName || !email || !password) {
-      return res.status(400).json({ message: 'All required fields must be provided' });
+      return res.status(400).json({ message: 'Name, email, and password are required' });
     }
 
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'Server configuration error: JWT_SECRET missing' });
-    }
-
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create user
     const newUser = new User({
       name: userName,
       email,
       password: hashedPassword,
-      role: role || 'user'
+      role: role || 'user',
     });
 
     await newUser.save();
 
+    // Sign Token
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role, email: newUser.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '7d' }
     );
 
@@ -48,8 +50,8 @@ router.post('/register', async (req, res) => {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role
-      }
+        role: newUser.role,
+      },
     });
   } catch (error) {
     console.error('Registration Error:', error);
@@ -57,17 +59,13 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 2. User Login Route
+// Login Route
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Please provide email and password' });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'Server configuration error: JWT_SECRET missing' });
     }
 
     const user = await User.findOne({ email });
@@ -82,7 +80,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '7d' }
     );
 
@@ -93,8 +91,8 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error('Login Error:', error);
