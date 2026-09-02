@@ -3,10 +3,10 @@ const router = express.Router();
 const Artwork = require('../models/Artwork');
 const Transaction = require('../models/Transaction');
 
-// Get all artworks uploaded by a specific artist (Case-insensitive matching)
-router.get('/my-artworks/:artistName', async (req, res) => {
+// Get all artworks uploaded by a specific artist (Matches by artistName or email)
+router.get('/my-artworks/:identifier', async (req, res) => {
   try {
-    const identifier = req.params.artistName;
+    const identifier = req.params.identifier;
     const regex = new RegExp(`^${identifier}$`, 'i'); // Case-insensitive regex match
 
     const artworks = await Artwork.find({
@@ -22,10 +22,10 @@ router.get('/my-artworks/:artistName', async (req, res) => {
   }
 });
 
-// Get sales history for artist's sold artworks (Case-insensitive matching)
-router.get('/sales-history/:artistName', async (req, res) => {
+// Get sales history for artist's sold artworks
+router.get('/sales-history/:identifier', async (req, res) => {
   try {
-    const identifier = req.params.artistName;
+    const identifier = req.params.identifier;
     const regex = new RegExp(`^${identifier}$`, 'i');
 
     const myArtworks = await Artwork.find({

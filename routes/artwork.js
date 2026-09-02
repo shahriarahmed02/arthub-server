@@ -78,7 +78,14 @@ router.get('/featured', async (req, res) => {
 // ⚠️ গুরুত্বপূর্ণ: এটি অবশ্যই `/:id` এর উপরে থাকতে হবে
 router.get('/my-artworks', verifyToken, async (req, res) => {
   try {
-    const artworks = await Artwork.find({ artistId: req.user.id }).sort({ createdAt: -1 });
+    // সাপোর্টিং কুয়েরি: artistId অথবা artistName/email মিলে গেলে তা ফেচ করবে
+    const artworks = await Artwork.find({
+      $or: [
+        { artistId: req.user.id },
+        { artistName: req.user.name }
+      ]
+    }).sort({ createdAt: -1 });
+    
     res.json(artworks);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch artist artworks', error: error.message });
@@ -112,7 +119,7 @@ router.post('/', verifyToken, async (req, res) => {
       category,
       imageUrl,
       artistId: req.user.id,
-      artistName: artistName || 'Unknown Artist'
+      artistName: artistName || req.user.name || 'Unknown Artist'
     });
 
     await newArtwork.save();
