@@ -3,14 +3,16 @@ const router = express.Router();
 const Artwork = require('../models/Artwork');
 const Transaction = require('../models/Transaction');
 
-// Get all artworks uploaded by a specific artist (Matches Name or Email)
+// Get all artworks uploaded by a specific artist (Case-insensitive matching)
 router.get('/my-artworks/:artistName', async (req, res) => {
   try {
     const identifier = req.params.artistName;
+    const regex = new RegExp(`^${identifier}$`, 'i'); // Case-insensitive regex match
+
     const artworks = await Artwork.find({
       $or: [
-        { artistName: identifier },
-        { artistEmail: identifier }
+        { artistName: regex },
+        { artistEmail: regex }
       ]
     }).sort({ createdAt: -1 });
     
@@ -20,14 +22,16 @@ router.get('/my-artworks/:artistName', async (req, res) => {
   }
 });
 
-// Get sales history for artist's sold artworks
+// Get sales history for artist's sold artworks (Case-insensitive matching)
 router.get('/sales-history/:artistName', async (req, res) => {
   try {
     const identifier = req.params.artistName;
+    const regex = new RegExp(`^${identifier}$`, 'i');
+
     const myArtworks = await Artwork.find({
       $or: [
-        { artistName: identifier },
-        { artistEmail: identifier }
+        { artistName: regex },
+        { artistEmail: regex }
       ]
     }).select('_id');
     
